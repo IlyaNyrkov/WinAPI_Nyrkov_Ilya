@@ -1,21 +1,25 @@
 ﻿#include <Windows.h>
 #include <tchar.h>
 #include <ctime>
+#include <vector>
 #define TIMER1 1
-
+#define TIMER2 2
 //задание: Три вложенных друг в друга квадрата с размерами сторон 50, 100 и 150 пикселов,
 //соприкасающиеся левыми верхними углами. По щелчку левой кнопки мыши цвет i-го квадрата
 //становиться цветом (i+1)-го. Щелчок мыши (правая клавиша) - Закрыть окно через 15 сек
 
 
-void PrintSquare(RECT& square, int size, int r, int g, int b, HDC& hdc) {
-	square.left = 0;
-	square.top = 0;
-	square.right = size;
-	square.bottom = size;
-	FillRect(hdc, &square, HBRUSH(CreateSolidBrush(RGB(r, g, b))));
+void PrintSquare(int size, std::vector<int> colors, HDC & hdc, HBRUSH& Hbrush) {
+	Hbrush = CreateSolidBrush(RGB(colors[0], colors[1], colors[2]));
+	SelectObject(hdc, Hbrush);
+	Rectangle(hdc, 0, 0, size, size);
 }
 
+
+void MoveElems(std::vector<std::vector<int>>& colors) {
+	std::vector<std::vector<int>> tmp = { colors[2], colors[0], colors[1] };
+	colors = tmp;
+}
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -76,39 +80,53 @@ int WINAPI _tWinMain(HINSTANCE This,		 // Дескриптор текущего 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static std::vector<std::vector<int>> colors = { {0, 0, 255}, {255, 0, 0}, {0, 255, 0} };
 	switch (message)		 // Обработчик сообщений
 	{
 		PAINTSTRUCT ps;
 		HDC hdc;
-		RECT square_1, square_2, square_3;
+		HBRUSH Hbrush;
 		int square_size;
 	case WM_CREATE:
+	{
 		return 0;
+	}
 	case WM_DESTROY:
+	{
 		PostQuitMessage(0);
 		return 0; 			// Завершение программы 
+	}
 	case WM_PAINT:
+	{
+		UpdateWindow(hWnd);
 		hdc = BeginPaint(hWnd, &ps);
 		square_size = 50;
-		PrintSquare(square_3, square_size * 3, 0, 0, 255, hdc);
-		PrintSquare(square_2, square_size * 2, 0, 255, 0, hdc);
-		PrintSquare(square_1, square_size * 1, 255, 0, 0, hdc);
+		PrintSquare(square_size * 3, colors[0], hdc, Hbrush);
+		PrintSquare(square_size * 2, colors[1], hdc, Hbrush);
+		PrintSquare(square_size * 1, colors[2], hdc, Hbrush);
 		EndPaint(hWnd, &ps);
 		return 0;
+	}
 	case WM_LBUTTONDOWN:
-
+	{
+		SetTimer(hWnd, TIMER1, 500, NULL);
 		return 0;
+	}
 	case WM_RBUTTONDOWN:
-		SetTimer(hWnd, TIMER1, 2000, NULL);
+	{
+		KillTimer(hWnd, TIMER1);
 		return 0;
+	}
 	case WM_TIMER:
+	{
 		if (wParam == TIMER1) {
-			exit(0);
+			MoveElems(colors);
+			InvalidateRect(hWnd, NULL, TRUE);
 		}
 		return 0;
+	}
 	default: 			// Обработка сообщения по умолчанию 
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
-
