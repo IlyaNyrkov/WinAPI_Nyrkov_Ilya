@@ -1,4 +1,4 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #include <tchar.h>
 #include <string>
 #define TIMER 1
@@ -72,13 +72,13 @@ int WINAPI _tWinMain(HINSTANCE This,		 // Дескриптор текущего 
 		This, 						// Дескриптор приложения 
 		NULL); 					// Дополнительной информации нет 
 
-	ShowWindow(hWnd, mode); 
+	ShowWindow(hWnd, mode);
 
 	// Цикл обработки сообщений 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		TranslateMessage(&msg); 	
-		DispatchMessage(&msg); 		
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 	return 0;
 }
@@ -90,22 +90,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)		 // Обработчик сообщений
 	{
-	HBRUSH hbrush;
-	PAINTSTRUCT ps;
-	HDC hdc;
-	HINSTANCE hInst;
-	static HWND hEdt1;
-	static int y_pos;
-	y_pos = 0;
-	static bool is_working;
-	is_working = false;
+		HBRUSH hbrush;
+		PAINTSTRUCT ps;
+		HDC hdc;
+		HINSTANCE hInst;
+		static HWND hEdt1;
+		static int y_pos;
+		y_pos = 0;
+		static bool is_working;
+		is_working = false;
 	case WM_PAINT:
 	{
 		hdc = BeginPaint(hWnd, &ps);
 		Color figure_color = { 0, 255 };
 		PrintFigure(0, y_pos, 100, 100 + y_pos, hWnd, figure_color, hbrush, hdc);
 
-		TextOut(hdc, 200, 200, result.c_str(), 28);
+		TextOut(hdc, 200, 200, result.c_str(), result.size());
 		EndPaint(hWnd, &ps);
 		return 0;
 	}
@@ -131,7 +131,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			y_pos++;
 			InvalidateRect(hWnd, NULL, TRUE);
 			SetTimer(hWnd, TIMER, 5, NULL);
-			
+
 		}
 	}
 	case WM_CREATE:
@@ -143,13 +143,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_COMMAND:
 	{
-		wchar_t c[21];
+		wchar_t c[22];
 		GetWindowText((HWND)lParam, c, 21);
 		result = c;
 		InvalidateRect(hWnd, NULL, NULL);
 		return 0;
 	}
-	default: 
+	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
