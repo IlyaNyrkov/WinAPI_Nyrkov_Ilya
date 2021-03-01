@@ -1,6 +1,8 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #include <tchar.h>
-
+#include <string>
+#include <cstdio>
+#pragma warning (disable : 4996)
 //лаба 2, задание: 
 //Сформировать два приложения, которые открывают по одному окну.
 //В окне 1 по щелчку левой клавиши мыши: при помощи FindWindow() найти дескриптор окна 2. 
@@ -71,6 +73,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)		 // Обработчик сообщений
 	{
 		static HWND hwnd_2;
+		HDC hdc;
+		PAINTSTRUCT Ps;
 	case WM_LBUTTONDOWN: {
 		if (hwnd_2 != NULL) {
 			SendMessage(hwnd_2, WM_USER, wParam, NULL);
@@ -80,10 +84,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 	}
+	case WM_PAINT :
+	{
+		if (hwnd_2 != NULL) {
+			hdc = BeginPaint(hWnd, &Ps);
+			wchar_t buffer[10];
+			_stprintf(buffer, _T("%p"), hwnd_2);
+			TextOut(hdc, 100, 100, buffer, 9);
+			EndPaint(hWnd, &Ps);
+		}
+		return 0;
+	}
 	case WM_USER + 1:
 	{
-		MessageBox(hWnd, L"Handle accepted", L"Message Acceptance", NULL);
+		//MessageBox(hWnd, L"Handle accepted", L"Message Acceptance", NULL);
 		hwnd_2 = (HWND)wParam;
+		InvalidateRect(hWnd, NULL, NULL);
 		return 0;
 	}
 	case WM_DESTROY:
